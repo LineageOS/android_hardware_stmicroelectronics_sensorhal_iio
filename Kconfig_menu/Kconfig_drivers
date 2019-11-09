@@ -89,6 +89,16 @@ config ST_HAL_LSM6DS3_ENABLED
 	  - Tilt;
 	  - Significant Motion;
 
+config ST_HAL_LSM6DSX_ENABLED
+	bool "LSM6DSx sensors"
+	default y
+	help
+	  Enable support for LSM6DSx combo sensors.
+
+	  Sensors supported:
+	  - Accelerometer;
+	  - Gyroscope;
+
 config ST_HAL_LIS3MDL_ENABLED
 	bool "LIS3MDL sensor"
 	default n

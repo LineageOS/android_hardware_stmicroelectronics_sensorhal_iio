@@ -94,6 +94,8 @@
 #define ST_SENSORS_LIST_52				"ais2ih"
 #define ST_SENSORS_LIST_53				"ism330dhcx"
 #define ST_SENSORS_LIST_54				"asm330lhhx"
+#define ST_SENSORS_LIST_55				"lsm6dsx"
+
 
 /*
  * IIO driver sensors suffix for sensors
