@@ -582,5 +582,14 @@ config ST_HAL_ASM330LHHX_ENABLED
           - Magnetometer (optional: must be connected on i2c mater);
           - Pressure (optional: must be connected on i2c mater);
           - Gyroscope;
+          
+config ST_HAL_ROHM_BH1730FVC
+        bool "BH1730FVC sensor"
+        default y
+        help
+          Enable support for BH1730FVC Ambient Light sensor.
+
+          Sensors supported:
+          - Ambient Light;
 
 endmenu # IIO drivers configuration

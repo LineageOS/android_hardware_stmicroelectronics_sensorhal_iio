@@ -35,6 +35,7 @@
 #include "Pressure.h"
 #include "RHumidity.h"
 #include "Temp.h"
+#include "Light.h"
 #include "SWAccelMagnFusion6X.h"
 #include "SWGeoMagRotationVector.h"
 #include "SWAccelGyroFusion6X.h"
@@ -806,6 +807,13 @@ static const struct ST_sensors_supported {
 	ST_HAL_NEW_SENSOR_SUPPORTED(CONCATENATE_STRING(ST_SENSORS_LIST_47, TEMP_NAME_SUFFIX_IIO), SENSOR_TYPE_AMBIENT_TEMPERATURE, DEVICE_IIO_TEMP,"LPS27HHW Temperature Sensor", 0.0f)
 #endif /* CONFIG_ST_HAL_LPS27HHW_ENABLED */
 #endif /* CONFIG_ST_HAL_TEMP_ENABLED */
+
+/**************** Ambient Light sensors ****************/
+#ifdef CONFIG_ST_HAL_ALS_ENABLED
+#ifdef CONFIG_ST_HAL_ROHM_BH1730FVC
+	ST_HAL_NEW_SENSOR_SUPPORTED(ROHM_SENSORS_LIST_0, SENSOR_TYPE_LIGHT, DEVICE_IIO_LIGHT, "BH1730FVC Ambient Light Sensor", 0.0f)
+#endif /* CONFIG_ST_HAL_ROHM_BH1730FVC */
+#endif /* CONFIG_ST_HAL_ALS_ENABLED */
 };
 
 /*
@@ -1140,6 +1148,13 @@ static SensorBase* st_hal_create_class_sensor(STSensorHAL_iio_devices_data *data
 			      data->wake_up_sensor);
 		break;
 #endif /* CONFIG_ST_HAL_TEMP_ENABLED */
+#ifdef CONFIG_ST_HAL_ALS_ENABLED
+	case SENSOR_TYPE_LIGHT:
+		sb = new Light(&class_data, data->android_name,
+			      handle,
+			      data->power_consumption);
+		break;
+#endif /* CONFIG_ST_HAL_ALS_ENABLED */
 	default:
 		return NULL;
 	}
@@ -1325,7 +1340,7 @@ static int st_hal_load_iio_devices_data(STSensorHAL_iio_devices_data *data)
 		    ST_sensors_supported[n].android_sensor_type != SENSOR_TYPE_STATIONARY_DETECT &&
 		    ST_sensors_supported[n].android_sensor_type != SENSOR_TYPE_DEVICE_ORIENTATION &&
 #endif /* CONFIG_ST_HAL_ANDROID_VERSION */
-
+		    ST_sensors_supported[n].android_sensor_type != SENSOR_TYPE_LIGHT &&
 		    ST_sensors_supported[n].android_sensor_type != SENSOR_TYPE_GLANCE_GESTURE) {
 			err = device_iio_utils::get_sampling_frequency_available(data[index].iio_sysfs_path, &data[index].sfa);
 			if (err < 0) {

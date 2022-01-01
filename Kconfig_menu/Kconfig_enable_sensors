@@ -391,4 +391,10 @@ config ST_HAL_ADDITIONAL_INFO_ENABLED
 	  Enable support for Additional Info Sensor type.
 endif
 
+config ST_HAL_ALS_ENABLED
+	bool "Ambient Light sensor"
+	default y
+	help
+	  Enable support for Ambient Light sensor.
+
 endmenu # Enable/disable sensors

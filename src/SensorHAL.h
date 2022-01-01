@@ -96,6 +96,7 @@
 #define ST_SENSORS_LIST_54				"asm330lhhx"
 #define ST_SENSORS_LIST_55				"lsm6dsx"
 
+#define ROHM_SENSORS_LIST_0				"bh1730"
 
 /*
  * IIO driver sensors suffix for sensors

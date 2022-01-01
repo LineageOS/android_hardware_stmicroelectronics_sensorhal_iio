@@ -133,4 +133,11 @@ config ST_HAL_GYRO_RANGE
 
 endif
 
+if ST_HAL_ALS_ENABLED
+config ST_HAL_ALS_RANGE
+	int "Ambient Light Max Range (lux)"
+	default 100000
+
+endif
+
 endmenu # Common configuration
