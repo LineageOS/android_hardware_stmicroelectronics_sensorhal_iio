@@ -18,7 +18,7 @@
 static float ReadIntegrationTimeS(const char *sysfs_path) {
 	char integ_time_filename[DEVICE_IIO_MAX_FILENAME_LEN];
 	if (snprintf(integ_time_filename, DEVICE_IIO_MAX_FILENAME_LEN,
-			   "%s/%s", sysfs_path, "in_illuminance_integration_time") < 0)
+		     "%s/%s", sysfs_path, "in_illuminance_integration_time") < 0)
 		return 0.001f;
 
 	FILE *fp = fopen(integ_time_filename, "r");
@@ -51,11 +51,14 @@ Light::Light(HWSensorBaseCommonData *data,
 	sensor_t_data.flags &= ~DATA_INJECTION_MASK;
 #endif /* CONFIG_ST_HAL_ANDROID_VERSION */
 
-	// Configure delay range
+	/* Configure delay range. minDelay/maxDelay store values in us. */
 	sensor_t_data.minDelay = (int32_t)(ReadIntegrationTimeS(
-				common_data.device_iio_sysfs_path) * 1000);
-	sensor_t_data.maxDelay = 999; // Maxmimum value allowed by nanosleep
-	poll_period_ns = sensor_t_data.minDelay * 1000000;
+				 common_data.device_iio_sysfs_path) * 1000000);
+
+	/* Set maximum value allowed by nanosleep in us */
+	sensor_t_data.maxDelay = 999999; /* 1 second max */
+
+	poll_period_ns = (int64_t)sensor_t_data.minDelay * 1000;
 }
 
 int Light::Enable(int handle, bool enable, bool lock_en_mutex)
@@ -94,12 +97,12 @@ int Light::SetDelay(int __attribute__((unused))handle,
 			   int64_t __attribute__((unused))timeout,
 			   bool __attribute__((unused))lock_en_mutex)
 {
-	// Clamp to min/max
+	/* Clamp to min/max */
 	if ((period_ns / 1000) < sensor_t_data.minDelay)
-		period_ns = sensor_t_data.minDelay * 1000;
+		period_ns = (int64_t)sensor_t_data.minDelay * 1000;
 
 	if ((period_ns / 1000) > sensor_t_data.maxDelay)
-		period_ns = sensor_t_data.maxDelay * 1000;
+		period_ns = (int64_t)sensor_t_data.maxDelay * 1000;
 
 	poll_period_ns = period_ns;
 	return 0;
@@ -111,7 +114,8 @@ void Light::ThreadDataTask()
 	char illum_filename[DEVICE_IIO_MAX_FILENAME_LEN];
 
 	int err = snprintf(illum_filename, DEVICE_IIO_MAX_FILENAME_LEN,
-			   "%s/%s", common_data.device_iio_sysfs_path, "in_illuminance_input");
+			   "%s/%s", common_data.device_iio_sysfs_path,
+			   "in_illuminance_input");
 	if (err < 0)
 		return;
 
@@ -120,7 +124,7 @@ void Light::ThreadDataTask()
 	// Poll forever
 	while (true) {
 		struct timespec ts = {
-			.tv_sec = 0,
+			.tv_sec = 0, /* Max < 1 second */
 			.tv_nsec = (long)poll_period_ns,
 		};
 
@@ -143,7 +147,8 @@ void Light::ThreadDataTask()
 		sensor_data.pollrate_ns = poll_period_ns;
 		sensor_data.flush_event_handle = -1;
 
-		sensor_event.timestamp = sensor_data.timestamp = android::elapsedRealtimeNano();
+		sensor_event.timestamp = sensor_data.timestamp
+				       = android::elapsedRealtimeNano();
 		sensor_event.light = illum_val;
 
 		SensorBase::WriteDataToPipe(poll_period_ns);
